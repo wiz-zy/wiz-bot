@@ -1,4 +1,4 @@
 # wiz-bot
 
-Readme:
-you're retarted if you read this
+***An open sourced Discord Bot***
+This Discord Bot is shit, that's all. - wiz-zy
