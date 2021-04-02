@@ -19,6 +19,8 @@ from discord.utils import get
 from discord.ext.commands.cooldowns import BucketType
 from asyncio import sleep
 import json
+import rule34
+from dateutil.parser import parse
 
 now = datetime.datetime.now()
 client = commands.Bot(command_prefix="-")
@@ -58,6 +60,29 @@ async def bllist(ctx):
         )
         embed.set_footer(text="coded by wizard#5236")
         await ctx.send(embed=embed)
+
+
+@client.group()
+async def help(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(
+            "NSFW: `-help nsfw` Administration: `-help admin` Commands: `-help commands`"
+        )
+
+
+@help.command()
+async def nsfw(ctx):
+    await ctx.send("test")
+
+
+@help.command()
+async def admin(ctx):
+    await ctx.send("test")
+
+
+@help.command()
+async def command(ctx):
+    await ctx.send("test")
 
 
 @client.command()
@@ -464,6 +489,21 @@ async def info(ctx, user: discord.Member):
 
 @commands.cooldown(1, 3, commands.BucketType.user)
 @client.command()
+async def r34(ctx, tag):
+    r34 = rule34.Rule34(asyncio.get_running_loop())
+    total_images = await r34.totalImages(tag)
+    get_images = await r34.getImages(tags=tag, singlePage=True)
+    image = get_images[int(1)]  # idfk man
+    await ctx.send(
+        f"""Total images: {total_images} 
+        Tags: {image.tags} 
+        Created at {image.created_at}"""
+    )
+    await ctx.send(image.file_url)
+
+
+@commands.cooldown(1, 3, commands.BucketType.user)
+@client.command()
 async def ban(ctx, member: discord.Member, bantime, reason):
     with open("blacklist.json") as json_file:
         data = json.load(json_file)
@@ -472,7 +512,12 @@ async def ban(ctx, member: discord.Member, bantime, reason):
                 await ctx.send("You're blacklisted from using commands!")
                 return
 
-        if member.bot == False or member == ctx.author or member == None:
+
+        if (
+            member.bot == False
+            or member == ctx.author
+            or member == None
+        ):
             embed = discord.Embed(title=" ", color=0xFF0000)
             embed.set_author(name="Confirmation")
             embed.add_field(name="User:", value=f"<@{member.id}>", inline=True)
@@ -515,9 +560,7 @@ async def ban(ctx, member: discord.Member, bantime, reason):
                     await message.edit(embed=embed2)
                     await member.send(embed=embed3)  # add server name later etc
         else:
-            await ctx.send(
-                "An error occured! Either the user was a bot or you tried to ban yourself, or you did not specify a member."
-            )
+            await ctx.send("An error occured while trying to ban this user.")
 
 
 @client.event
