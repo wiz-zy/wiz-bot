@@ -41,6 +41,12 @@ async def on_ready():
 @client.command()
 async def bllist(ctx):
     with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
         data = json.load(json_file)
         for id in data["users"]:
             if str(ctx.author.id) == str(id["id"]):
@@ -66,27 +72,40 @@ async def bllist(ctx):
 async def help(ctx):
     if ctx.invoked_subcommand is None:
         await ctx.send(
-            "NSFW: `-help nsfw` Administration: `-help admin` Commands: `-help commands`"
+            "NSFW: `-help nsfw` Administration: `-help admin` General: `-help general`"
         )
 
 
 @help.command()
 async def nsfw(ctx):
-    await ctx.send("test")
+    await ctx.send("Commands: -dentai, -gentai, -r34, -keywords, -rantai, -search")
 
 
 @help.command()
 async def admin(ctx):
-    await ctx.send("test")
+    await ctx.send("Commands: -blacklist, -ban")
 
 
 @help.command()
-async def command(ctx):
-    await ctx.send("test")
+async def general(ctx):
+    await ctx.send("Commands: -ping, -info")
 
 
 @client.command()
 async def keywords(ctx):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     possible = [
         "feet",
         "yuri",
@@ -152,8 +171,12 @@ async def keywords(ctx):
         "baka",
         "woof",
     ]
+    member = ctx.author
+    possible = " ".join(possible[:])
+    possible = str(possible).replace(" ", ", ")
     embed = discord.Embed(title=" ", color=0xFF0000)
-    embed.set_author(name=" ")
+    embed.set_author(name=" ", icon_url=member.avatar_url)
+    embed.timestamp = datetime.datetime.utcnow()
     embed.add_field(name="Keywords", value=f"```{possible}```", inline=False)
     embed.set_footer(text="powered by nekos.life")
     await ctx.send(embed=embed)
@@ -161,6 +184,19 @@ async def keywords(ctx):
 
 @client.command()
 async def ping(ctx):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     now = datetime.datetime.now()
     embed = discord.Embed(colour=discord.Colour.red())
     embed.set_author(name="Pong!")
@@ -171,6 +207,19 @@ async def ping(ctx):
 
 @client.command()
 async def rantai(ctx):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     pictures = [
         "feet",
         "yuri",
@@ -216,6 +265,19 @@ async def rantai(ctx):
 
 @client.command()
 async def search(ctx, word):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     possible = [
         "feet",
         "yuri",
@@ -295,6 +357,19 @@ async def search(ctx, word):
 
 @client.command()
 async def gentai(ctx):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     pictures = ["random_hentai_gif", "solog", "feetg", "cum", "pussy"]
 
     embed = discord.Embed(colour=discord.Colour.red())
@@ -309,11 +384,21 @@ async def gentai(ctx):
 
 @client.command()
 async def dentai(ctx, number):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
     cur_page = 1
-    try:
-        doujin = Hentai(number)
-    except HTTPError:
-        await ctx.send("You're stupid as fuck")
+    doujin = Hentai(number)
     pages = doujin.num_pages
     pages2 = doujin.num_pages - 1
     member = ctx.author
@@ -444,7 +529,8 @@ async def dentai(ctx, number):
 
 @commands.cooldown(1, 3, commands.BucketType.user)
 @client.command()
-async def blacklist(ctx, members: commands.Greedy[discord.Member], reason, time):
+async def blacklist(ctx, members: commands.Greedy[discord.Member], *reason, time):
+    reason = " ".join(reason[:])
     if ctx.author.id == 325849904570302469:
         bldata = {}
         bldata["users"] = []
@@ -470,6 +556,12 @@ async def blacklist(ctx, members: commands.Greedy[discord.Member], reason, time)
 @client.command()
 async def info(ctx, user: discord.Member):
     with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
         data = json.load(json_file)
         for id in data["users"]:
             if str(ctx.author.id) == str(id["id"]):
@@ -489,22 +581,13 @@ async def info(ctx, user: discord.Member):
 
 @commands.cooldown(1, 3, commands.BucketType.user)
 @client.command()
-async def r34(ctx, tag):
-    r34 = rule34.Rule34(asyncio.get_running_loop())
-    total_images = await r34.totalImages(tag)
-    get_images = await r34.getImages(tags=tag, singlePage=True)
-    image = get_images[int(1)]  # idfk man
-    await ctx.send(
-        f"""Total images: {total_images} 
-        Tags: {image.tags} 
-        Created at {image.created_at}"""
-    )
-    await ctx.send(image.file_url)
+async def r34(ctx, *tag):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
 
-
-@commands.cooldown(1, 3, commands.BucketType.user)
-@client.command()
-async def ban(ctx, member: discord.Member, bantime, reason):
     with open("blacklist.json") as json_file:
         data = json.load(json_file)
         for id in data["users"]:
@@ -512,12 +595,38 @@ async def ban(ctx, member: discord.Member, bantime, reason):
                 await ctx.send("You're blacklisted from using commands!")
                 return
 
+    tag = " ".join(tag[:])
+    tag = str(tag).replace(" ", "+")
+    r34 = rule34.Rule34(asyncio.get_running_loop())
+    total_images = await r34.totalImages(str(tag))
+    get_images = await r34.getImages(tags=str(tag), singlePage=True)
+    image = get_images[int(1)]  # idfk man
+    await ctx.send(
+        f"""```Total images: {total_images}```
+        ```Tags: {image.tags}``` 
+        ```Created at {image.created_at}```"""
+    )
+    await ctx.send(image.file_url)
 
-        if (
-            member.bot == False
-            or member == ctx.author
-            or member == None
-        ):
+
+@commands.cooldown(1, 3, commands.BucketType.user)
+@client.command()
+async def ban(ctx, member: discord.Member, bantime, *reason):
+    with open("blacklist.json") as json_file:
+        first = json_file.read(1)
+        if not first:
+            json_file.close()
+            pass
+
+    with open("blacklist.json") as json_file:
+        data = json.load(json_file)
+        for id in data["users"]:
+            if str(ctx.author.id) == str(id["id"]):
+                await ctx.send("You're blacklisted from using commands!")
+                return
+
+        reason = " ".join(reason[:])
+        if member.bot == False or member == ctx.author or member == None:
             embed = discord.Embed(title=" ", color=0xFF0000)
             embed.set_author(name="Confirmation")
             embed.add_field(name="User:", value=f"<@{member.id}>", inline=True)
